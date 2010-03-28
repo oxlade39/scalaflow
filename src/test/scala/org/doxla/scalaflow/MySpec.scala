@@ -37,11 +37,12 @@ object MySpec extends Specification {
     }
 
     "have states with events" in {
-      new ScalaFlow("coffee flow") {
+      val f = new ScalaFlow("coffee flow") {
         state('new) {
           event('order)
         }
       }
+      f.states.head.events.size must be(1)
     }
   }
 }
