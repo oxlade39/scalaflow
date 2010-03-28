@@ -1,15 +1,32 @@
 package org.doxla.scalaflow
 
-class ScalaFlow(val name: String) {
+class ScalaFlow(val name: String)
+        extends ScalaFlowImplicits
+        with StateBuilders
+        with EventBuilders {
 
-  private[this] object flowDefinition extends FlowDefinition
+  protected[this] object flowDefinition extends FlowDefinition
 
-  def state(newState: FlowState) = flowDefinition.addState(newState)
-  
+}
+
+trait StateBuilders {
+  self: ScalaFlow =>
+
   def states = flowDefinition.states
 
-  implicit def symbol2State(name: Symbol) = new FlowState(name)
+  def state(newState: FlowState)(block: => FlowEvent) = flowDefinition.addState(newState)
+  def endstate(newState: FlowState) = flowDefinition.addState(newState)
+}
 
+trait EventBuilders {
+  self: ScalaFlow =>
+
+  def event(newEvent: FlowEvent) = newEvent
+}
+
+trait ScalaFlowImplicits {
+  implicit def symbol2State(name: Symbol) = new FlowState(name)
+  implicit def symbol2Event(name: Symbol) = new FlowEvent(name)
 }
 
 trait FlowDefinition {
@@ -24,3 +41,4 @@ trait FlowDefinition {
 }
 
 class FlowState(val name: Symbol)
+class FlowEvent(val name: Symbol)
