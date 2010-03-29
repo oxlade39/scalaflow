@@ -57,14 +57,16 @@ object WorkflowSpecification extends Specification {
 
   "Events" should {
     "have transitions" in {
-      val orderEvent = new ScalaFlow("coffee flow") {
+      object CoffeeFlow extends ScalaFlow("coffee flow") {
         state('new) {
           event('order) -> 'pay
         }
         endstate('pay)
-      }.states.head.events.head
+      }
+      val newState = CoffeeFlow.states.head
+      val payState = CoffeeFlow.states.tail.head
       
-      orderEvent.transitionsTo.endStateName must be('pay)
+      newState.events.head.transitionsTo.state must be(payState)
     }
   }
 }

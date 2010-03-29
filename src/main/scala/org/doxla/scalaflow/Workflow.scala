@@ -26,18 +26,13 @@ trait States {
 trait Events {
   self: ScalaFlow =>
 
-  def event(newEvent: FlowEvent) = {
-    flowDefinition.addEvent(newEvent)
-    newEvent
+  def event(newEventName: Symbol) = {
+    flowDefinition.addEvent(newEventName)
   }
 }
 
 trait ScalaFlowImplicits {
-  implicit def symbol2Event(name: Symbol) = new FlowEvent(name)
   implicit def symbol2State(name: Symbol) = new FlowState(name, Nil)
-  //  implicit def symbol2StateBuilder(name: Symbol) = new StateBuilder().withName(name)
-  //  implicit def stateBuilderToState(builder: StateBuilder) = builder.build
-  //  implicit def symbolAndBlock2Event(name: Symbol)(block: => FlowEvent) = new StateBuilder().withName(name).withEvents()
 }
 
 trait FlowDefinition {
@@ -57,13 +52,19 @@ trait FlowDefinition {
     events
   }
 
-  def addEvent(event: FlowEvent) = {
-    currentFlowEvents = event :: currentFlowEvents 
+  def addEvent(eventName: Symbol) = {
+    val flowEvent: FlowEvent = new FlowEvent(this, eventName)
+    currentFlowEvents = flowEvent :: currentFlowEvents
+    flowEvent
   }
 
   def addState(newState: FlowState) = {
     flowStates = newState :: flowStates
     newState
+  }
+
+  def findState(stateName: Symbol) = states.find {
+    case FlowState(matchState, _) => matchState == stateName
   }
 }
 
@@ -82,23 +83,30 @@ class StateBuilder(val ctx: FlowDefinition) {
   }
 }
 
-class FlowState(val name: Symbol, private[this] val evts: List[FlowEvent]) {
+case class FlowState(name: Symbol, evts: List[FlowEvent]) {
   def events: List[FlowEvent] = evts.reverse
 }
-class FlowEvent(val name: Symbol) {
+class FlowEvent(val context: FlowDefinition, val name: Symbol) {
   var to: Option[FlowTransition] = None
 
   def transitionsTo: FlowTransition = {
-    to.getOrElse( new FlowTransition(name) )
+    to.getOrElse( NoTransition )
   }
 
   def transitionsTo(to: FlowTransition) {
     this.to = Some(to)
   }
 
-  def ->(state: Symbol) = {
-    transitionsTo(new FlowTransition(state))
+  def ->(stateName: Symbol) = {
+    transitionsTo(new FlowTransition(context, stateName))
   }
 }
 
-class FlowTransition(val endStateName: Symbol)
+class FlowTransition(private[this] val ctx: FlowDefinition, private[this] val stateName: Symbol) {
+  def state = {
+    ctx.findState(stateName).getOrElse( throw new IllegalStateException("There is no state with name: " +stateName+ "but a transition to it has been defined") )
+  }
+}
+object NoTransition extends FlowTransition(null,null) {
+  override def state = throw new UnsupportedOperationException("NoTransitions don't have transitions")
+}
