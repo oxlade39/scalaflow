@@ -3,8 +3,8 @@ package org.doxla.scalaflow
 import org.specs.Specification
 import org.specs.runner.{JUnit4, ScalaTestSuite, ConsoleRunner}
 
-class MySpecTest extends JUnit4(MySpec)
-object MySpec extends Specification {
+class WorkflowSpecificationTest extends JUnit4(WorkflowSpecification)
+object WorkflowSpecification extends Specification {
   "A Workflow" should {
     "have a name" in {
       new ScalaFlow("Coffee Flow").name must be("Coffee Flow")
