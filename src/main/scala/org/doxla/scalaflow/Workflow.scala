@@ -89,16 +89,12 @@ case class FlowState(name: Symbol, evts: List[FlowEvent]) {
 class FlowEvent(val context: FlowDefinition, val name: Symbol) {
   var to: Option[FlowTransition] = None
 
-  def transitionsTo: FlowTransition = {
-    to.getOrElse( NoTransition )
-  }
+  def transitionsTo: FlowTransition = to.getOrElse( NoTransition )
+
+  def ->(stateName: Symbol) = transitionsTo(new FlowTransition(context, stateName))
 
   def transitionsTo(to: FlowTransition) {
     this.to = Some(to)
-  }
-
-  def ->(stateName: Symbol) = {
-    transitionsTo(new FlowTransition(context, stateName))
   }
 }
 
