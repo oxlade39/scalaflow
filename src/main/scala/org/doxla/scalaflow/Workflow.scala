@@ -1,5 +1,7 @@
 package org.doxla.scalaflow
 
+import scala.Option
+
 class ScalaFlow(val name: String)
         extends ScalaFlowImplicits
         with States
@@ -80,5 +82,23 @@ class StateBuilder(val ctx: FlowDefinition) {
   }
 }
 
-class FlowState(val name: Symbol, val events: List[FlowEvent])
-class FlowEvent(val name: Symbol)
+class FlowState(val name: Symbol, private[this] val evts: List[FlowEvent]) {
+  def events: List[FlowEvent] = evts.reverse
+}
+class FlowEvent(val name: Symbol) {
+  var to: Option[FlowTransition] = None
+
+  def transitionsTo: FlowTransition = {
+    to.getOrElse( new FlowTransition(name) )
+  }
+
+  def transitionsTo(to: FlowTransition) {
+    this.to = Some(to)
+  }
+
+  def ->(state: Symbol) = {
+    transitionsTo(new FlowTransition(state))
+  }
+}
+
+class FlowTransition(val endStateName: Symbol)

@@ -5,6 +5,7 @@ import org.specs.runner.{JUnit4, ScalaTestSuite, ConsoleRunner}
 
 class WorkflowSpecificationTest extends JUnit4(WorkflowSpecification)
 object WorkflowSpecification extends Specification {
+
   "A Workflow" should {
     "have a name" in {
       new ScalaFlow("Coffee Flow").name must be("Coffee Flow")
@@ -38,6 +39,32 @@ object WorkflowSpecification extends Specification {
           event('order)
         }
       }.states.head.events.size must be(1)
+    }
+
+    "have states with ordered events" in {
+      val events = new ScalaFlow("coffee flow") {
+        state('new) {
+          event('order)
+          event('leave)
+        }
+      }.states.head.events
+
+      events.size must be(2)
+      events.head.name must be('order)
+      events.tail.head.name must be('leave)
+    }
+  }
+
+  "Events" should {
+    "have transitions" in {
+      val orderEvent = new ScalaFlow("coffee flow") {
+        state('new) {
+          event('order) -> 'pay
+        }
+        endstate('pay)
+      }.states.head.events.head
+      
+      orderEvent.transitionsTo.endStateName must be('pay)
     }
   }
 }
