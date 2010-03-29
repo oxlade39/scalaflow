@@ -4,10 +4,6 @@ import org.specs.Specification
 import org.specs.runner.{JUnit4, ScalaTestSuite, ConsoleRunner}
 
 class MySpecTest extends JUnit4(MySpec)
-class MySpecSuite extends ScalaTestSuite(MySpec)
-
-object MySpecRunner extends ConsoleRunner(MySpec)
-
 object MySpec extends Specification {
   "A Workflow" should {
     "have a name" in {
@@ -37,12 +33,11 @@ object MySpec extends Specification {
     }
 
     "have states with events" in {
-      val f = new ScalaFlow("coffee flow") {
+      new ScalaFlow("coffee flow") {
         state('new) {
           event('order)
         }
-      }
-      f.states.head.events.size must be(1)
+      }.states.head.events.size must be(1)
     }
   }
 }
