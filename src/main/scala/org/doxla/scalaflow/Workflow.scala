@@ -103,7 +103,7 @@ class FlowEvent(val context: FlowDefinition, val name: Symbol) {
 }
 
 class FlowTransition(private[this] val ctx: FlowDefinition, private[this] val stateName: Symbol) {
-  def state = {
+  def state: FlowState = {
     ctx.findState(stateName).getOrElse( throw new IllegalStateException("There is no state with name: " +stateName+ "but a transition to it has been defined") )
   }
 }
