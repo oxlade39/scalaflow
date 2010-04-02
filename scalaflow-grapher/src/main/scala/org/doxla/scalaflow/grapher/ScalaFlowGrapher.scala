@@ -1,12 +1,8 @@
 package org.doxla.scalaflow.grapher
 
-import graphviz.{ScalaGraphvizRenderer, LabeledGraphvizEdge}
-import java.io.{PrintWriter, File}
+import graphviz.{LabeledGraphvizEdge}
 import org.doxla.scalaflow.{FlowEvent, FlowState, ScalaFlow}
 import com.google.inject.grapher.graphviz._
-import java.lang.String
-import org.doxla.scalaflow.example.CustomerCoffeeWorkflow
-
 class ScalaFlowGrapher(renderer: GraphvizRenderer) {
   implicit def flowState2GraphvizNode(state: FlowState) = {
     val graphvizNode: GraphvizNode = new GraphvizNode(state.name.name)
@@ -14,10 +10,6 @@ class ScalaFlowGrapher(renderer: GraphvizRenderer) {
     graphvizNode.setShape(NodeShape.ELLIPSE)
     graphvizNode
   }
-
-  //  implicit def flowEvent2GrapizEdge(event: FlowEvent) = {
-  //    val edge = new GraphvizEdge(event.transitionsTo.)
-  //  }
 
   var flowToGraph: Option[ScalaFlow] = None
 
