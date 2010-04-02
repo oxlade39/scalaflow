@@ -1,5 +1,6 @@
 package org.doxla.scalaflow
 
+import component.{FlowDefinition, FlowEvent, FlowState}
 import scala.Option
 
 class ScalaFlow(val name: String)
@@ -35,39 +36,6 @@ trait ScalaFlowImplicits {
   implicit def symbol2State(name: Symbol) = new FlowState(name, Nil)
 }
 
-trait FlowDefinition {
-  private[this] var flowStates: List[FlowState] = Nil
-  private[this] var currentFlowEvents: List[FlowEvent] = Nil
-
-  def states = flowStates.reverse
-
-  def resetEvents = {
-    currentFlowEvents = Nil
-    this
-  }
-
-  def currentEvents = {
-    val events = currentFlowEvents
-    resetEvents
-    events
-  }
-
-  def addEvent(eventName: Symbol) = {
-    val flowEvent: FlowEvent = new FlowEvent(this, eventName)
-    currentFlowEvents = flowEvent :: currentFlowEvents
-    flowEvent
-  }
-
-  def addState(newState: FlowState) = {
-    flowStates = newState :: flowStates
-    newState
-  }
-
-  def findState(stateName: Symbol) = states.find {
-    case FlowState(matchState, _) => matchState == stateName
-  }
-}
-
 class StateBuilder(val ctx: FlowDefinition) {
   private[this] var name: Symbol = null
 
@@ -83,26 +51,4 @@ class StateBuilder(val ctx: FlowDefinition) {
   }
 }
 
-case class FlowState(name: Symbol, evts: List[FlowEvent]) {
-  def events: List[FlowEvent] = evts.reverse
-}
-class FlowEvent(val context: FlowDefinition, val name: Symbol) {
-  var to: Option[FlowTransition] = None
 
-  def transitionsTo: FlowTransition = to.getOrElse( NoTransition )
-
-  def ->(stateName: Symbol) = transitionsTo(new FlowTransition(context, stateName))
-
-  def transitionsTo(to: FlowTransition) {
-    this.to = Some(to)
-  }
-}
-
-class FlowTransition(private[this] val ctx: FlowDefinition, private[this] val stateName: Symbol) {
-  def state: FlowState = {
-    ctx.findState(stateName).getOrElse( throw new IllegalStateException("There is no state with name: " +stateName+ "but a transition to it has been defined") )
-  }
-}
-object NoTransition extends FlowTransition(null,null) {
-  override def state = throw new UnsupportedOperationException("NoTransitions don't have transitions")
-}

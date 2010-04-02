@@ -1,9 +1,12 @@
 package org.doxla.scalaflow.grapher
 
 import graphviz.{LabeledGraphvizEdge}
-import org.doxla.scalaflow.{FlowEvent, FlowState, ScalaFlow}
-import com.google.inject.grapher.graphviz._
+import com.google.inject.grapher.graphviz.{EdgeStyle, NodeShape, GraphvizNode, GraphvizRenderer}
+import org.doxla.scalaflow.component.{FlowEvent, FlowState}
+import org.doxla.scalaflow.ScalaFlow
+
 class ScalaFlowGrapher(renderer: GraphvizRenderer) {
+  
   implicit def flowState2GraphvizNode(state: FlowState) = {
     val graphvizNode: GraphvizNode = new GraphvizNode(state.name.name)
     graphvizNode.setTitle(state.name.name.replaceAll("_", " "))
