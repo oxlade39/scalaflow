@@ -2,3 +2,5 @@
 *.ipr
 *.iml
 target
+testoutput.dot
+**/testoutput.dot
