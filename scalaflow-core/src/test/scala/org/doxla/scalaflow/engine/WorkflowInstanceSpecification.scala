@@ -24,11 +24,12 @@ object WorkflowInstanceSpecification extends Specification {
     }
 
     "tell you the current state" in {
-
+      WorkflowInstance(CustomerCoffeeWorkflow).currentStateName mustBe('start)
     }
 
     "tell you the available transitions for current state" in {
-      
+      WorkflowInstance(CustomerCoffeeWorkflow).availableTransitions mustEqual('Place_Order :: Nil)
+      WorkflowInstance(CustomerCoffeeWorkflow).!? mustEqual('Place_Order :: Nil)
     }
 
   }
