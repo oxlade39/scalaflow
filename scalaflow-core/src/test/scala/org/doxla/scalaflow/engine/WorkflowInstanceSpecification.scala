@@ -18,6 +18,19 @@ object WorkflowInstanceSpecification extends Specification {
     "accept non empty ScalaFlows" in {
       WorkflowInstance(CustomerCoffeeWorkflow) must notBeNull
     }
+
+    "begin in the first state of a ScalaFlow" in {
+      WorkflowInstance(CustomerCoffeeWorkflow).currentState mustBe(CustomerCoffeeWorkflow.states.head)
+    }
+
+    "tell you the current state" in {
+
+    }
+
+    "tell you the available transitions for current state" in {
+      
+    }
+
   }
 
   object emptyWorkflow extends ScalaFlow("EMPTY")
