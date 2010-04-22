@@ -14,7 +14,7 @@
 
     <modules>
         <module>scalaflow-core</module>
-    <module>scalaflow-grapher</module>
+        <module>scalaflow-grapher</module>
   </modules>
 
     <repositories>

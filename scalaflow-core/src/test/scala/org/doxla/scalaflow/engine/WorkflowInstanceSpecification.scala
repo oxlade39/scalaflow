@@ -29,9 +29,30 @@ object WorkflowInstanceSpecification extends Specification {
 
     "tell you the available transitions for current state" in {
       WorkflowInstance(CustomerCoffeeWorkflow).availableTransitions mustEqual('Place_Order :: Nil)
+    }
+
+    "accept transitions on available events" in {
+      WorkflowInstance(CustomerCoffeeWorkflow) transitionOn 'Place_Order mustBe(true)
+    }
+
+    "reject transitions on non existant events" in {
+      WorkflowInstance(CustomerCoffeeWorkflow) transitionOn 'Bad_Event mustBe(false)
+    }
+
+  }
+
+  "A WorkflowInstance with SymbolicAliases" should {
+    "have a shortened availableTransitions method" in {
       WorkflowInstance(CustomerCoffeeWorkflow).!? mustEqual('Place_Order :: Nil)
     }
 
+    "have a shortened transitionOn method for positive case" in {
+      WorkflowInstance(CustomerCoffeeWorkflow) ! 'Place_Order mustBe(true)
+    }
+
+    "have a shortened transitionOn method for negative case" in {
+      WorkflowInstance(CustomerCoffeeWorkflow) ! 'Bad_Event mustBe(false)
+    }
   }
 
   object emptyWorkflow extends ScalaFlow("EMPTY")
