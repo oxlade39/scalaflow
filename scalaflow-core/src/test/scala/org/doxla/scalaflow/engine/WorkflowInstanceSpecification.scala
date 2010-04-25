@@ -2,7 +2,7 @@ package org.doxla.scalaflow.engine
 
 import org.specs.runner.JUnit4
 import org.specs.Specification
-import org.doxla.scalaflow.{ScalaFlow, WorkflowSpecification}
+import org.doxla.scalaflow.{ScalaFlow}
 import org.doxla.scalaflow.exception.InvalidWorkflowException
 import org.doxla.scalaflow.example.CustomerCoffeeWorkflow
 
@@ -37,6 +37,12 @@ object WorkflowInstanceSpecification extends Specification {
 
     "reject transitions on non existant events" in {
       WorkflowInstance(CustomerCoffeeWorkflow) transitionOn 'Bad_Event mustBe(false)
+    }
+
+    "move states on events" in {
+      val wi = WorkflowInstance(CustomerCoffeeWorkflow)
+      wi transitionOn 'Place_Order
+      wi.availableTransitions mustEqual('Pay :: 'Update_Order :: Nil)
     }
 
   }
