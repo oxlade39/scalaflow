@@ -35,14 +35,21 @@ object WorkflowInstanceSpecification extends Specification {
       WorkflowInstance(CustomerCoffeeWorkflow) transitionOn 'Place_Order mustBe(true)
     }
 
-    "reject transitions on non existant events" in {
+    "reject transitions on non existent events" in {
       WorkflowInstance(CustomerCoffeeWorkflow) transitionOn 'Bad_Event mustBe(false)
     }
 
-    "move states on events" in {
+    "move states on #transitionOn for existent events" in {
       val wi = WorkflowInstance(CustomerCoffeeWorkflow)
       wi transitionOn 'Place_Order
       wi.availableTransitions mustEqual('Pay :: 'Update_Order :: Nil)
+    }
+
+    "be idempotent on #transitionOn for non existent events" in {
+      val wi = WorkflowInstance(CustomerCoffeeWorkflow)
+      val transitionsAvailableBeforeEvent = wi.availableTransitions
+      wi transitionOn 'Bad_Event
+      wi.availableTransitions mustEqual(transitionsAvailableBeforeEvent)
     }
 
   }

@@ -2,8 +2,7 @@ package org.doxla.scalaflow.engine
 
 import org.doxla.scalaflow.ScalaFlow
 import org.doxla.scalaflow.exception.InvalidWorkflowException
-import collection.immutable.HashSet
-import org.doxla.scalaflow.component.{FlowTransition, FlowEvent}
+import org.doxla.scalaflow.component.{FlowState, FlowTransition, FlowEvent}
 
 class WorkflowInstance(val workflowDef: ScalaFlow) extends SymbolicAliases {
   private[this] var currentFlowState = workflowDef.states.head
@@ -12,17 +11,18 @@ class WorkflowInstance(val workflowDef: ScalaFlow) extends SymbolicAliases {
   def currentStateName = currentState.name
 
   def availableTransitions = currentState.events.map { _.name }
-  def transitionOn(event: Symbol) = {
-    val matchingEvent = currentFlowState.events.find { e: FlowEvent =>
-        e.name == event
-    }
-    if(matchingEvent.isDefined) {
-      val to: Option[FlowTransition] = matchingEvent.get.to
-      currentFlowState = to.getOrElse(GoNowhereTransition).state
-      true
-    }else
-      false
+  
+  def transitionOn(eventName: Symbol) = {
+    val matchingEvent = findEventByName(eventName)
+    currentFlowState = matchingEvent.getOrElse(DoNothingFlowEvent).to.getOrElse(GoNowhereTransition).state
+    matchingEvent.isDefined
+  }
 
+  def findEventByName(name: Symbol): Option[FlowEvent] =
+    currentFlowState.events.find { _.name == name }
+
+  object DoNothingFlowEvent extends FlowEvent(null, null) {
+    to = Some(GoNowhereTransition)
   }
 
   object GoNowhereTransition extends FlowTransition(null, null) {
