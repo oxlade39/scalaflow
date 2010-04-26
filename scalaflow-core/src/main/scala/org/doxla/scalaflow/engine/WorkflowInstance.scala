@@ -57,7 +57,7 @@ trait SymbolicAliases {
 
   def !? = availableTransitions
 
-  def !(event: Symbol) = transitionOn(event)
+  def ! = transitionOn _
 }
 
 trait PrettyToString {
