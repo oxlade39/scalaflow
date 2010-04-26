@@ -56,6 +56,11 @@ object WorkflowInstanceSpecification extends Specification {
       wi.availableTransitions mustEqual(transitionsAvailableBeforeEvent)
     }
 
+    "have a #toString equal to a pretty version of #currentStateName" in {
+      val wi = WorkflowInstance definedAs CustomerCoffeeWorkflow
+      wi.toString mustEqual("WorkflowInstance currently in start")
+    }
+
   }
 
   "A WorkflowInstance with SymbolicAliases" should {

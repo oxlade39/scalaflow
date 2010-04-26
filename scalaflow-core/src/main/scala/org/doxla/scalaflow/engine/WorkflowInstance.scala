@@ -4,7 +4,10 @@ import org.doxla.scalaflow.ScalaFlow
 import org.doxla.scalaflow.exception.InvalidWorkflowException
 import org.doxla.scalaflow.component.{FlowState, FlowTransition, FlowEvent}
 
-class WorkflowInstance(val workflowDef: ScalaFlow) extends SymbolicAliases {
+class WorkflowInstance(val workflowDef: ScalaFlow)
+        extends SymbolicAliases
+        with PrettyToString {
+  
   private[this] var currentFlowState = workflowDef.states.head
 
   def currentState = currentFlowState
@@ -55,4 +58,11 @@ trait SymbolicAliases {
   def !? = availableTransitions
 
   def !(event: Symbol) = transitionOn(event)
+}
+
+trait PrettyToString {
+  self: WorkflowInstance =>
+
+
+  override def toString = "WorkflowInstance currently in " + currentStateName.name
 }
