@@ -20,3 +20,29 @@ object CustomerCoffeeWorkflow extends ScalaFlow("Customer Coffee") {
   }
   endstate('Drink)
 }
+
+Example usage from scala:console:
+
+scala> val wi = WorkflowInstance definedAs CustomerCoffeeWorkflow
+wi: org.doxla.scalaflow.engine.WorkflowInstance = WorkflowInstance currently in start
+
+scala> wi !?
+res11: List[Symbol] = List('Place_Order)
+
+scala> wi ! 'Place_Order
+res12: Boolean = true
+
+scala> wi
+res13: org.doxla.scalaflow.engine.WorkflowInstance = WorkflowInstance currently in Order_Placed
+
+scala> wi !?
+res14: List[Symbol] = List('Pay, 'Update_Order)
+
+scala> wi ! 'Pay
+res15: Boolean = true
+
+scala> wi !?
+res16: List[Symbol] = List('Pickup)
+
+scala> wi
+res17: org.doxla.scalaflow.engine.WorkflowInstance = WorkflowInstance currently in Paid
