@@ -41,6 +41,12 @@ object WorkflowInstance {
 
   }
 
+  @throws(classOf[InvalidWorkflowException])
+  def from(workflow: ScalaFlow) = apply(workflow)
+
+  @throws(classOf[InvalidWorkflowException])
+  def definedAs(workflow: ScalaFlow) = apply(workflow)
+
 }
 
 trait SymbolicAliases {

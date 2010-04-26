@@ -13,14 +13,18 @@ object WorkflowInstanceSpecification extends Specification {
   "A WorkflowInstance" should {
     "not except empty ScalaFlows" in {
       WorkflowInstance(emptyWorkflow) must throwA[InvalidWorkflowException]
+      WorkflowInstance from emptyWorkflow must throwA[InvalidWorkflowException]
+      WorkflowInstance definedAs emptyWorkflow must throwA[InvalidWorkflowException]
     }
 
     "accept non empty ScalaFlows" in {
       WorkflowInstance(CustomerCoffeeWorkflow) must notBeNull
+      WorkflowInstance definedAs CustomerCoffeeWorkflow must notBeNull
     }
 
     "begin in the first state of a ScalaFlow" in {
       WorkflowInstance(CustomerCoffeeWorkflow).currentState mustBe(CustomerCoffeeWorkflow.states.head)
+      WorkflowInstance.definedAs(CustomerCoffeeWorkflow).currentState mustBe(CustomerCoffeeWorkflow.states.head)
     }
 
     "tell you the current state" in {
