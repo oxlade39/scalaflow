@@ -1,6 +1,6 @@
 package org.doxla.scalaflow
 
-import component.{FlowDefinition, FlowState}
+import component.{FlowEvent, FlowTransition, FlowDefinition, FlowState}
 
 trait States {
   self: ScalaFlow =>
@@ -27,4 +27,39 @@ class StateBuilder(val ctx: FlowDefinition) {
     block
     new FlowState(name, ctx.currentEvents)
   }
+}
+
+case class FState(name: Symbol, transitions: List[FlowTransition])
+
+case class FEvent(name: Symbol) {
+  def ->(stateName: Symbol) = {
+
+  }
+}
+
+object State {
+
+  var transitions: List[FlowTransition] = Nil
+  var current: FState = Nothing
+
+  def apply(name: Symbol)(transitionsBlock: () => Unit) = {
+    transitionsBlock
+    current = new FState(name, transitions)
+    current
+  }
+}
+
+object Event {
+  def apply(name: Symbol) = {
+    new FEvent(name)
+  }
+}
+
+object test {
+
+  State('start) {
+    Event('choose_coffee) -> 'waiting
+    Event('leave) -> 'done
+  }
+
 }
