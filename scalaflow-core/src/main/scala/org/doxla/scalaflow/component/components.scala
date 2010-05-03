@@ -1,7 +1,5 @@
 package org.doxla.scalaflow.component
 
-object components
-
 case class FlowState(name: Symbol, evts: List[FlowEvent]) {
   def events: List[FlowEvent] = evts.reverse
 }
