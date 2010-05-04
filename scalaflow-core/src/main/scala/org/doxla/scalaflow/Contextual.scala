@@ -1,7 +1,5 @@
 package org.doxla.scalaflow
 
-import component.{FlowEvent, FlowTransition, FlowState}
-
 trait Contextual[T] {
   private[this] var ctx: List[T] = Nil
 
