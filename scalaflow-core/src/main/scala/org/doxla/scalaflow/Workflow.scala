@@ -25,7 +25,8 @@ class ScalaFlow(val name: String) {
 
   object event extends Contextual[FlowEvent]{
     def apply(eventName: Symbol): FlowTransition = {
-      add(FlowEvent(eventName, new FlowTransition(eventName, flowStatesHead){
+
+      object anonTransition extends FlowTransition(eventName, flowStatesHead) {
         private[this] var stateName: Symbol = null
 
         private[this] object stateFinder extends StateGetter(
@@ -39,7 +40,9 @@ class ScalaFlow(val name: String) {
           stateName = name
           this
         }
-      })).transition
+      }
+
+      add(FlowEvent(eventName, anonTransition)).transition
     }
   }
 
