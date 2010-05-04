@@ -1,6 +1,6 @@
 package org.doxla.scalaflow
 
-import component.{StartState, FlowEvent, FlowState, FlowTransition}
+import component.{FlowEvent, FlowState, FlowTransition}
 
 class ScalaFlow(val name: String) {
 
