@@ -1,30 +1,23 @@
 package org.doxla.scalaflow
 
-import component.{FlowDefinition, FlowState}
+import component.{FlowEvent, FlowTransition, FlowState}
 
-trait States {
-  self: ScalaFlow =>
+trait Contextual[T] {
+  private[this] var ctx: List[T] = Nil
 
-  def states = flowDefinition.states
-
-  def state(stateName: Symbol)(block: => Unit) {
-    val stateBuilder = new StateBuilder(flowDefinition).withName(stateName)
-    flowDefinition.addState(stateBuilder.build(block))
-  }
-  def endstate(newState: FlowState) = flowDefinition.addState(newState)
-}
-
-class StateBuilder(val ctx: FlowDefinition) {
-  private[this] var name: Symbol = null
-
-  def withName(name: Symbol) = {
-    this.name = name
-    this
+  def add(thing: T) = {
+    ctx = thing :: ctx
+    thing
   }
 
-  def build(block: => Unit) = {
-    ctx.resetEvents
-    block
-    new FlowState(name, ctx.currentEvents)
+  def reset = {
+    ctx = Nil
   }
+
+  def context: List[T] = {
+    val currentContext = ctx
+    reset
+    currentContext
+  }
+
 }
