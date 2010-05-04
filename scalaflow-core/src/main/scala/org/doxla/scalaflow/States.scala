@@ -37,29 +37,45 @@ case class FEvent(name: Symbol) {
   }
 }
 
-object State {
+trait Contextual[T] {
+  private[this] var ctx: List[T] = Nil
 
-  var transitions: List[FlowTransition] = Nil
-  var current: FState = Nothing
-
-  def apply(name: Symbol)(transitionsBlock: () => Unit) = {
-    transitionsBlock
-    current = new FState(name, transitions)
-    current
+  def add(thing: T) = {
+    ctx = thing :: ctx
   }
+
+  def reset() = {
+    ctx = Nil
+  }
+
+  def context(): List[T] = {
+    ctx
+  }
+
 }
 
-object Event {
-  def apply(name: Symbol) = {
-    new FEvent(name)
+
+class WF {
+  object state {
+    def apply(name: Symbol)(transitionsBlock: => Unit) = {
+      transitionsBlock
+      new FState(name, event.context)
+    }
+  }
+
+  object event extends Contextual[FlowTransition]{
+    def apply(name: Symbol) = {
+      new FEvent(name)
+    }
   }
 }
 
 object test {
 
-  State('start) {
-    Event('choose_coffee) -> 'waiting
-    Event('leave) -> 'done
+  new WF() {
+    state('start) {
+      event('happen)
+    }
   }
 
 }
