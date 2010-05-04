@@ -7,12 +7,6 @@ object StartState extends FlowState('start, Nil)
 
 case class FlowEvent(name: Symbol, transition: FlowTransition)
 
-//object FlowEvent {
-//  def apply(name: Symbol, transition: FlowTransition): FlowEvent = {
-//    new FlowEvent(name, transition)
-//  }
-//}
-
 abstract class FlowTransition(val name: Symbol, val from: Option[FlowState]) {
   def to: FlowState
   def ->(name: Symbol): FlowTransition

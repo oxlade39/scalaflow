@@ -25,17 +25,17 @@ class ScalaFlow(val name: String) {
 
   object event extends Contextual[FlowEvent]{
     def apply(eventName: Symbol): FlowTransition = {
-      add(new FlowEvent(eventName, new FlowTransition(eventName, flowStatesHead){
+      add(FlowEvent(eventName, new FlowTransition(eventName, flowStatesHead){
         private[this] var stateName: Symbol = null
 
-        def to: FlowState = {
-          flowStates.find {
-            case FlowState(name, _) => stateName == name
-          }.getOrElse( throw new IllegalStateException("There is no registered state by the name: "+stateName))
-        }
+        private[this] object stateFinder extends StateGetter(
+          () => stateName,
+          () => flowStates
+        )
+
+        def to: FlowState = stateFinder.findState
 
         def ->(name: Symbol) = {
-          println("adding stateName "+name)
           stateName = name
           this
         }
@@ -43,6 +43,14 @@ class ScalaFlow(val name: String) {
     }
   }
 
+}
+
+class StateGetter(stateName: () => Symbol, states: () => List[FlowState]) {
+  def findState: FlowState = {
+    states().find {
+      case FlowState(name, _) => stateName() == name
+    }.getOrElse( throw new IllegalStateException("There is no registered state by the name: "+stateName()))
+  }
 }
 
 trait ScalaFlowImplicits {
