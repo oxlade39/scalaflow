@@ -29,7 +29,7 @@ class StateBuilder(val ctx: FlowDefinition) {
   }
 }
 
-case class FState(name: Symbol, transitions: List[FlowTransition])
+case class FState(name: Symbol, transitions: List[FTransition])
 
 case class FEvent(name: Symbol) {
   def ->(stateName: Symbol) = {
@@ -37,35 +37,61 @@ case class FEvent(name: Symbol) {
   }
 }
 
+abstract class FTransition(val name: Symbol, val from: FState) {
+private[this] var stateName: Symbol = null
+
+  def to: Option[FState]
+  def ->(name: Symbol): FTransition
+}
+
 trait Contextual[T] {
   private[this] var ctx: List[T] = Nil
 
   def add(thing: T) = {
     ctx = thing :: ctx
+    thing
   }
 
-  def reset() = {
+  def reset = {
     ctx = Nil
   }
 
-  def context(): List[T] = {
-    ctx
+  def context: List[T] = {
+    val currentContext = ctx
+    reset
+    currentContext
   }
 
 }
 
-
 class WF {
+
+  private[this] var states: List[FState] = Nil
+
   object state {
     def apply(name: Symbol)(transitionsBlock: => Unit) = {
       transitionsBlock
-      new FState(name, event.context)
+      states = new FState(name, event.context) :: states
+      states.head
     }
   }
 
-  object event extends Contextual[FlowTransition]{
-    def apply(name: Symbol) = {
-      new FEvent(name)
+  object event extends Contextual[FTransition]{
+    def apply(eventName: Symbol) = {
+      add(new FTransition(eventName, states.head){
+        private[this] var stateName: Symbol = null
+
+        def to: Option[FState] = {
+          states.find {
+            case FState(name, _) => stateName == name
+          }
+        }
+
+        def ->(name: Symbol) = {
+          stateName = name
+          this
+        }
+      })
     }
   }
 }
@@ -74,7 +100,7 @@ object test {
 
   new WF() {
     state('start) {
-      event('happen)
+      event('happen) -> 'next
     }
   }
 
