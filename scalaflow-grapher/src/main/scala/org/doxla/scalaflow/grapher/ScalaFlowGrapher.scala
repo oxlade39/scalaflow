@@ -27,7 +27,7 @@ class ScalaFlowGrapher(renderer: GraphvizRenderer) {
     for (state: FlowState <- flow.states) {
       renderer.addNode(state)
       for (event: FlowEvent <- state.events) {
-        val edge = new LabeledGraphvizEdge(state.name.name, event.transitionsTo.state.name.name)
+        val edge = new LabeledGraphvizEdge(state.name.name, event.transition.to.name.name)
         edge.setStyle(EdgeStyle.SOLID)
         edge.setLabel(event.name.name)
         renderer.addEdge(edge)

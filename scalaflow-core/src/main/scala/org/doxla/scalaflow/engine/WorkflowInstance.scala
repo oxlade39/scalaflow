@@ -2,10 +2,10 @@ package org.doxla.scalaflow.engine
 
 import org.doxla.scalaflow.ScalaFlow
 import org.doxla.scalaflow.exception.InvalidWorkflowException
-import org.doxla.scalaflow.component.{FlowState, FlowTransition, FlowEvent}
+import org.doxla.scalaflow.component.{StartState, FlowState, FlowTransition, FlowEvent}
 
 class WorkflowInstance(val workflowDef: ScalaFlow) extends SymbolicAliases {
-  private[this] var currentFlowState = workflowDef.states.head
+  private[this] var currentFlowState: FlowState = workflowDef.states.head
 
   def currentState = currentFlowState
   def currentStateName = currentState.name
@@ -14,19 +14,18 @@ class WorkflowInstance(val workflowDef: ScalaFlow) extends SymbolicAliases {
   
   def transitionOn(eventName: Symbol) = {
     val matchingEvent = findEventByName(eventName)
-    currentFlowState = matchingEvent.getOrElse(DoNothingFlowEvent).to.getOrElse(GoNowhereTransition).state
+    currentFlowState = matchingEvent.getOrElse(DoNothingFlowEvent).transition.to
     matchingEvent.isDefined
   }
 
   def findEventByName(name: Symbol): Option[FlowEvent] =
     currentFlowState.events.find { _.name == name }
 
-  object DoNothingFlowEvent extends FlowEvent(null, null) {
-    to = Some(GoNowhereTransition)
-  }
+  object DoNothingFlowEvent extends FlowEvent(null, GoNowhereTransition)
 
   object GoNowhereTransition extends FlowTransition(null, null) {
-    override def state = currentFlowState
+    def to = currentFlowState
+    def ->(name: Symbol) = throw new UnsupportedOperationException("This is a static transition")
   }
 }
 

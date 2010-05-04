@@ -66,7 +66,7 @@ object WorkflowSpecification extends Specification {
       val newState = CoffeeFlow.states.head
       val payState = CoffeeFlow.states.tail.head
       
-      newState.events.head.transitionsTo.state must be(payState)
+      newState.events.head.transition.to must be(payState)
     }
   }
 }
