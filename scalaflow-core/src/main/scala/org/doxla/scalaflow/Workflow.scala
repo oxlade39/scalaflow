@@ -29,12 +29,12 @@ class ScalaFlow(val name: String) {
       object anonTransition extends FlowTransition(eventName, flowStatesHead) {
         private[this] var stateName: Symbol = null
 
-        private[this] object stateFinder extends StateGetter(
-          () => stateName,
-          () => flowStates
-        )
+        private[this] object stateFinder extends StateFinder {
+          val workflow = ScalaFlow.this
+        }
 
-        def to: FlowState = stateFinder.findState
+        def to: FlowState =
+          stateFinder.findState(stateName).getOrElse( throw new IllegalStateException("There is no registered state by the name: "+stateName))
 
         def ->(name: Symbol) = {
           stateName = name
@@ -48,11 +48,12 @@ class ScalaFlow(val name: String) {
 
 }
 
-class StateGetter(stateName: () => Symbol, states: () => List[FlowState]) {
-  def findState: FlowState = {
-    states().find {
-      case FlowState(name, _) => stateName() == name
-    }.getOrElse( throw new IllegalStateException("There is no registered state by the name: "+stateName()))
+trait StateFinder {
+  val workflow: ScalaFlow
+  def findState(stateName: Symbol): Option[FlowState] = {
+    workflow.states.find {
+      case FlowState(name, _) => stateName == name
+    }
   }
 }
 
