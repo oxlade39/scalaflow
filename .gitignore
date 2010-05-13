@@ -4,3 +4,7 @@
 target
 testoutput.dot
 **/testoutput.dot
+target/
+lib_managed/
+src_managed/
+project/boot/
