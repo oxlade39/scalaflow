@@ -7,6 +7,9 @@ testoutput.dot
 target/
 lib_managed/
 src_managed/
+project/boot/target/
+lib_managed/
+src_managed/
 project/boot/
 out/
 project/plugins/project/
