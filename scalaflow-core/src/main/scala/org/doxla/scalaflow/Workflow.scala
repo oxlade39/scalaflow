@@ -7,15 +7,31 @@ class ScalaFlow(val name: String) {
   private var flowStates: List[FlowState] = Nil
   def states = flowStates.reverse
 
-  object state {
-    def apply(name: Symbol)(transitionsBlock: => Unit) = {
-      transitionsBlock
-      flowStates = new FlowState(name, event.context) :: flowStates
-      flowStates.head
+  private[this] var hasEndState = false
+
+  private def safe_?[T](f: => T):T = {
+    hasEndState match {
+      case false => f
+      case _ => throw new IllegalStateException("Can't add states after endstate");
     }
   }
 
-  def endstate(name: Symbol) = state.apply(name){}
+  object state {
+    def apply(name: Symbol)(transitionsBlock: => Unit) = safe_?[FlowState] {
+      addState(name)(transitionsBlock)
+    }
+  }
+
+  def endstate(name: Symbol) = {
+    hasEndState = true
+    addState(name){}
+  }
+
+  private[this] def addState(name: Symbol)(transitionsBlock: => Unit): FlowState = {
+    transitionsBlock
+    flowStates = new FlowState(name, event.context) :: flowStates
+    flowStates.head
+  }
 
   private def flowStatesHead: Option[FlowState] = 
     flowStates match {
@@ -24,8 +40,11 @@ class ScalaFlow(val name: String) {
     }
 
   object event extends Contextual[FlowEvent]{
-    def apply(eventName: Symbol): FlowTransition = {
+    def apply(eventName: Symbol) = safe_?[FlowTransition] {
+      addEvent(eventName)
+    }
 
+    private[this] def addEvent(eventName: Symbol) : FlowTransition = {
       object anonTransition extends FlowTransition(eventName, flowStatesHead) {
         private[this] var stateName: Symbol = null
 

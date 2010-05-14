@@ -53,6 +53,21 @@ object WorkflowSpecification extends Specification {
       events.head.name must be('order)
       events.tail.head.name must be('leave)
     }
+
+    "not allow new states to be added after an endstate is added" in {
+      object FinalWorkflow extends ScalaFlow("Workflow with endstate") {
+        endstate('end)
+      }
+      FinalWorkflow.state('another){} must throwA[IllegalStateException]
+    }
+
+    "allow new endstates to be added after other endstates are added" in {
+      object FinalWorkflow extends ScalaFlow("Workflow with endstate") {
+        endstate('end)
+      }
+      FinalWorkflow.endstate('another)
+      FinalWorkflow.states.size must be(2)
+    }
   }
 
   "Events" should {
