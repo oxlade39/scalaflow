@@ -19,8 +19,8 @@ class ScalaFlowProject(info: ProjectInfo) extends ParentProject(info) with IdeaP
    class ScalaFlowCoreProject(info: ProjectInfo) extends DefaultProject(info) with IdeaPlugin
    {
 	   val junit = "junit" % "junit" % "4.4" % "test"
-	   // val specs = "org.scala-tools.testing" % "specs" % "1.6.0" % "test"
-	   val specs = "org.scala-tools.testing" % "specs" % "1.6.1-2.8.0.Beta1-RC6" % "test"	
+	    val specs = "org.scala-tools.testing" % "specs" % "1.6.0" % "test"
+//	   val specs = "org.scala-tools.testing" % "specs" % "1.6.6-2.8.0.Beta1-RC6" % "test"
    }
 
 }
