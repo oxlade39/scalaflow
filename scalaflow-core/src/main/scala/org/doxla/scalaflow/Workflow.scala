@@ -2,22 +2,13 @@ package org.doxla.scalaflow
 
 import component.{FlowEvent, FlowState, FlowTransition}
 
-class ScalaFlow(val name: String) {
+class ScalaFlow(val name: String) extends SafeHelpers {
 
   private var flowStates: List[FlowState] = Nil
   def states = flowStates.reverse
 
-  private[this] var hasEndState = false
-
-  private def safe_?[T](f: => T):T = {
-    hasEndState match {
-      case false => f
-      case _ => throw new IllegalStateException("Can't add states after endstate");
-    }
-  }
-
   object state {
-    def apply(name: Symbol)(transitionsBlock: => Unit) = safe_?[FlowState] {
+    def apply(name: Symbol)(transitionsBlock: => Unit) = safeState_? {
       addState(name)(transitionsBlock)
     }
   }
@@ -40,7 +31,7 @@ class ScalaFlow(val name: String) {
     }
 
   object event extends Contextual[FlowEvent]{
-    def apply(eventName: Symbol) = safe_?[FlowTransition] {
+    def apply(eventName: Symbol) = safeEvent_? {
       addEvent(eventName)
     }
 
@@ -65,6 +56,34 @@ class ScalaFlow(val name: String) {
     }
   }
 
+}
+
+trait SafeHelpers {
+  private[scalaflow] var hasEndState = false
+  private[this] var addingState = false
+
+  private[scalaflow] def safeState_?(f: => FlowState):FlowState = {
+    hasEndState match {
+      case false => addingState{ f }
+      case _ => throw new IllegalStateException("Can't add states after endstate");
+    }
+  }
+
+  private[scalaflow] def safeEvent_?(f: => FlowTransition): FlowTransition = {
+    addingState match {
+      case true => f
+      case _ => throw new IllegalStateException("Can not add events outside of states")
+    }
+  }
+
+  private[this] def addingState(f: => FlowState): FlowState = {
+    addingState = true
+    try{
+      f
+    }finally{
+      addingState = false
+    }
+  }  
 }
 
 trait StateFinder {
