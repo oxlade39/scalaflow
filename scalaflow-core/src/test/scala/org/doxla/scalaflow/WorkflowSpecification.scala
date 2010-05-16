@@ -84,7 +84,7 @@ object WorkflowSpecification extends Specification {
       newState.events.head.transition.to must be(payState)
     }
 
-    "not allow events to be added outside of a state" in {
+    "not be added outside of a state" in {
       new ScalaFlow("with endstate") {
         event('order) -> 'end
       } must throwA[IllegalStateException]

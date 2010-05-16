@@ -9,7 +9,7 @@ class ScalaFlow(val name: String) extends SafeHelpers {
 
   object state {
     def apply(name: Symbol)(transitionsBlock: => Unit) = safeState_? {
-      addState(name)(transitionsBlock)
+      addState(name){transitionsBlock}
     }
   }
 
@@ -65,7 +65,7 @@ trait SafeHelpers {
   private[scalaflow] def safeState_?(f: => FlowState):FlowState = {
     hasEndState match {
       case false => addingState{ f }
-      case _ => throw new IllegalStateException("Can't add states after endstate");
+      case _ => throw new IllegalStateException("Can not add states after endstate");
     }
   }
 
