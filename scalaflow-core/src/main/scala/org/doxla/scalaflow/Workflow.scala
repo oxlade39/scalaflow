@@ -2,59 +2,13 @@ package org.doxla.scalaflow
 
 import component.{FlowEvent, FlowState, FlowTransition}
 
-class ScalaFlow(val name: String) extends SafeHelpers {
+class ScalaFlow(val name: String)
+      extends SafeHelpers
+      with StateRepositoryProvider
+      with StateBuilder
+      with EventBuilder {
 
-  private var flowStates: List[FlowState] = Nil
-  def states = flowStates.reverse
-
-  object state {
-    def apply(name: Symbol)(transitionsBlock: => Unit) = safeState_? {
-      addState(name){transitionsBlock}
-    }
-  }
-
-  def endstate(name: Symbol) = {
-    hasEndState = true
-    addState(name){}
-  }
-
-  private[this] def addState(name: Symbol)(transitionsBlock: => Unit): FlowState = {
-    transitionsBlock
-    flowStates = new FlowState(name, event.context) :: flowStates
-    flowStates.head
-  }
-
-  private def flowStatesHead: Option[FlowState] = 
-    flowStates match {
-      case Nil => None
-      case _ => Some(flowStates.head)
-    }
-
-  object event extends Contextual[FlowEvent]{
-    def apply(eventName: Symbol) = safeEvent_? {
-      addEvent(eventName)
-    }
-
-    private[this] def addEvent(eventName: Symbol) : FlowTransition = {
-      object anonTransition extends FlowTransition(eventName, flowStatesHead) {
-        private[this] var stateName: Symbol = null
-
-        private[this] object stateFinder extends StateFinder {
-          val workflow = ScalaFlow.this
-        }
-
-        def to: FlowState =
-          stateFinder.findState(stateName).getOrElse( throw new IllegalStateException("There is no registered state by the name: "+stateName))
-
-        def ->(name: Symbol) = {
-          stateName = name
-          this
-        }
-      }
-
-      add(FlowEvent(eventName, anonTransition)).transition
-    }
-  }
+  def states = stateRepository.states
 
 }
 
@@ -86,15 +40,80 @@ trait SafeHelpers {
   }  
 }
 
-trait StateFinder {
-  val workflow: ScalaFlow
+trait StateBuilder { self: SafeHelpers =>
+
+  def event: Contextual[FlowEvent]
+  val stateRepository: StateRepository
+
+  object state {
+    def apply(name: Symbol)(transitionsBlock: => Unit) = safeState_? {
+      stateRepository.addState(name){ () =>
+        transitionsBlock
+        event
+      }
+    }
+  }
+
+  def endstate(name: Symbol) = {
+    hasEndState = true
+    stateRepository.addState(name){ () =>
+      event
+    }
+  }
+
+}
+
+trait StateRepositoryProvider {
+  val stateRepository = new StateRepository
+}
+
+class StateRepository {
+  private[this] var internalStates: List[FlowState] = Nil
+
+  def states = internalStates.reverse
+
   def findState(stateName: Symbol): Option[FlowState] = {
-    workflow.states.find {
+    states.find {
       case FlowState(name, _) => stateName == name
     }
   }
+
+  def statesHead: Option[FlowState] = internalStates match {
+    case Nil => None
+    case _ => Some(states.head)
+  }
+
+  def addState(name: Symbol)(transitionsBlock: () => Contextual[FlowEvent]): FlowState = {
+    val event = transitionsBlock()
+    internalStates = new FlowState(name, event.context) :: internalStates
+    internalStates.head
+  }
 }
 
-trait ScalaFlowImplicits {
-  implicit def symbol2State(name: Symbol) = new FlowState(name, Nil)
+trait EventBuilder { self: SafeHelpers =>
+
+  val stateRepository: StateRepository
+
+  object event extends Contextual[FlowEvent] {
+    def apply(eventName: Symbol) = safeEvent_? {
+      addEvent(eventName)
+    }
+
+    private[this] def addEvent(eventName: Symbol) : FlowTransition = {
+      object anonTransition extends FlowTransition(eventName, stateRepository.statesHead) {
+        private[this] var stateName: Symbol = null
+
+        def to: FlowState =
+          stateRepository.findState(stateName).getOrElse(
+                          throw new IllegalStateException("There is no registered state by the name: "+stateName))
+
+        def ->(name: Symbol) = {
+          stateName = name
+          this
+        }
+      }
+
+      add(FlowEvent(eventName, anonTransition)).transition
+    }
+  }
 }
