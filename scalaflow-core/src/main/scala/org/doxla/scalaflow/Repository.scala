@@ -2,14 +2,21 @@ package org.doxla.scalaflow
 
 import component.{FlowEvent, FlowState}
 
-class StateRepository {
+trait StateRepository {
+  def states: List[FlowState]
+  def findState(stateName: Symbol): Option[FlowState]
+  def addState(name: Symbol)(transitionsBlock: () => Contextual[FlowEvent]): FlowState
+  def statesHead: Option[FlowState]
+}
+
+class DefaultStateRepository extends StateRepository {
   private[this] var internalStates: List[FlowState] = Nil
 
   def states = internalStates.reverse
 
   def findState(stateName: Symbol): Option[FlowState] = {
     states.find {
-  case FlowState(name, _) => stateName == name
+      case FlowState(name, _) => stateName == name
     }
   }
 
@@ -26,5 +33,5 @@ class StateRepository {
 }
 
 trait StateRepositoryProvider {
-  val stateRepository = new StateRepository
+  val stateRepository = new DefaultStateRepository
 }

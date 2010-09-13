@@ -1,6 +1,6 @@
 package org.doxla.scalaflow
 
-import component.{NoTransition, FlowTransition, FlowState}
+import component.{NoTransition, FlowState}
 import org.specs.Specification
 import org.specs.runner.JUnit4
 
