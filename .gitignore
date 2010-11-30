@@ -14,3 +14,4 @@ project/boot/
 out/
 project/plugins/project/
 tags
+.idea
