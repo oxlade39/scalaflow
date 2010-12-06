@@ -69,6 +69,15 @@ A very basic extension of Google's [guice-grapher](http://code.google.com/p/goog
 ### *CustomerCoffeeWorkflow* generated image
 ![CustomerCoffeeWorkflow generated image](scalaflow/raw/master/scalaflow-grapher/testoutput.jpg "CustomerCoffeeWorkflow")
 
+### Example code from [here](scalaflow/blob/master/scalaflow-grapher/src/main/scala/org/doxla/scalaflow/grapher/example/GrapherExample.scala)
+<pre><code>val renderer = new ScalaFlowGraphvizRenderer()
+val printWriter = new PrintWriter(new File("testoutput.dot"), "UTF-8")
+renderer.setOut(printWriter)
+renderer.setRankdir("TB")
+
+new ScalaFlowGrapher(renderer).of(CustomerCoffeeWorkflow).graph
+</code></pre>
+
 ## Scalaflow-atompub
 
 I started playing with some ideas for generating [atompub](http://bitworking.org/projects/atom/rfc5023.html) XML documents. Still very much work in progress.
