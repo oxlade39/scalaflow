@@ -67,7 +67,7 @@ res17: org.doxla.scalaflow.engine.WorkflowInstance = WorkflowInstance currently 
 A very basic extension of Google's [guice-grapher](http://code.google.com/p/google-guice/wiki/Grapher) module. To generate for cool visual representations of *ScalaFlow*s. Use [Graphviz viewer](http://www.graphviz.org/) to view the generated files.
 
 ### *CustomerCoffeeWorkflow* generated image
-![CustomerCoffeeWorkflow generated image](raw/master/scalaflow-grapher/testoutput.jpg "CustomerCoffeeWorkflow")
+![CustomerCoffeeWorkflow generated image](scalaflow/raw/master/scalaflow-grapher/testoutput.jpg "CustomerCoffeeWorkflow")
 
 ## Scalaflow-atompub
 
