@@ -65,3 +65,24 @@ trait PrettyToString {
 
   override def toString = "WorkflowInstance currently in " + currentStateName.name
 }
+
+sealed case class StateTransition(from: Symbol, event: Symbol, to: Symbol)
+
+trait EventNotification {
+	type EventHandler = PartialFunction[StateTransition, Boolean]
+	
+	private[this] val defaultEventHandler: EventHandler = { case _ => true }
+	private[this] var eventHandler: Option[EventHandler] = None
+	
+	def addEventHandler(handler: EventHandler): Unit = eventHandler match {
+		case None => eventHandler = Some(handler)
+		case Some(e) => eventHandler = Some(e orElse handler)
+	}
+	
+	def publish(event: StateTransition): Boolean = handle(event)
+	
+	private[this] def handle: EventHandler = eventHandler match {
+		case None => defaultEventHandler
+		case Some(e) => e orElse defaultEventHandler		
+	}
+}

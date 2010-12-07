@@ -60,7 +60,6 @@ object WorkflowInstanceSpecification extends Specification {
       val wi = WorkflowInstance definedAs CustomerCoffeeWorkflow
       wi.toString mustEqual("WorkflowInstance currently in start")
     }
-
   }
 
   "A WorkflowInstance with SymbolicAliases" should {
@@ -75,6 +74,32 @@ object WorkflowInstanceSpecification extends Specification {
     "have a shortened transitionOn method for negative case" in {
       WorkflowInstance(CustomerCoffeeWorkflow) ! 'Bad_Event mustBe(false)
     }
+  }
+
+  "An EventNotification" should {
+	"allow publication of StateTransitions" in {
+	  object underTest extends EventNotification
+	  underTest publish StateTransition('from, 'event, 'to) mustBe(true)
+	}	
+	"allow event listeners to be added" in {
+	  object underTest extends EventNotification
+	  underTest addEventHandler {
+		case StateTransition('from, 'event, 'to) => false 
+	  }
+	  underTest publish StateTransition('from, 'event, 'to) mustBe(false)
+	}
+	"combine new event handlers with old" in {
+	  object underTest extends EventNotification
+	  underTest addEventHandler {
+		case StateTransition('from, 'event, 'to) => false 
+	  }
+	  underTest addEventHandler {
+		case StateTransition('from, 'different_event, to) => 'to == to
+	  }
+	  underTest publish StateTransition('from, 'event, 'to) mustBe(false)
+	  underTest publish StateTransition('from, 'different_event, 'to) mustBe(true)	
+	  underTest publish StateTransition('from, 'different_event, 'not_to) mustBe(false)	
+	}	
   }
 
   object emptyWorkflow extends ScalaFlow("EMPTY")
